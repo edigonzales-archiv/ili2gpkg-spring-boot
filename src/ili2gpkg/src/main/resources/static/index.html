@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>INTERLIS2 - ili2gpkg</title>
+
+	<link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons">
+	<link type="text/css" rel="stylesheet" href="webjars/materializecss/0.97.7/css/materialize.min.css" media="screen,projection" />
+
+	<style>
+		html, body, .upload-box {
+			height: 100%;
+			padding: 0;
+			position: relative;
+    		margin: 0 auto;
+    		overflow: hidden;
+		}
+		input[type=text].valid {
+			border-bottom: 1px solid #2196F3 !important;
+			box-shadow: 0 1px 0 0 #2196F3 !important;
+		}
+		
+		.checkbox-blue[type="checkbox"].filled-in:checked + label:after {
+     		border: 2px solid #2196F3;
+     		background-color: #2196F3;
+		}
+		
+		ul.dropdown-content.select-dropdown li span {
+    		color: #2196F3; /* no need for !important :) */
+		}
+	</style>
+</head>
+
+<body>
+
+
+
+  
+	<div class="valign-wrapper row upload-box">
+		<div class="col s10 pull-s1 m6 pull-m3 l4 pull-l4">
+			<form id="upload-file-form" action="" method="POST" enctype="multipart/form-data">
+
+				<div class="card-content">
+					<div class="row">
+						<div class="input-field">
+							<select name="referenceFrame">
+								<option value="2056">LV95</option>
+								<option value="21781">LV03</option>
+							</select> <label>Reference Frame</label>
+						</div>
+
+					</div>
+				</div>
+
+				<div class="card-content">
+					<div class="row">
+						<p>
+							<input type="checkbox" name="strokeArcs"
+								class="filled-in checkbox-blue" id="strokeArcs"
+								checked="checked" /> <label for="strokeArcs">Stroke
+								Arcs </label>
+						</p>
+					</div>
+				</div>
+
+				<div class="card-content">
+					<div class="row">
+						<p>
+							<input type="checkbox" name="skipPolygonBuilding"
+								class="filled-in checkbox-blue" id="skipPolygonBuilding" /> <label
+								for="skipPolygonBuilding">Skip Polygon Building </label>
+						</p>
+					</div>
+				</div>
+
+				<div class="card-content">
+					<div class="row">
+						<p>
+							<input type="checkbox" name="nameByTopic"
+								class="filled-in checkbox-blue" id="nameByTopic"
+								checked="checked" /> <label for="nameByTopic">Name By
+								Topic </label>
+						</p>
+					</div>
+				</div>
+
+				<div class="card-content">
+					<div class="row">
+						<p>
+							<input type="checkbox" name="noSmartMapping"
+								class="filled-in checkbox-blue" id="noSmartMapping" /> <label
+								for="noSmartMapping">Skip Polygon Building </label>
+						</p>
+					</div>
+				</div>
+
+				<div class="card-content">
+					<div class="row">
+						<div class="file-field input-field">
+							<div class="btn blue">
+								<span class="white-text">Browse</span> <input type="file" name="file">
+							</div>
+							<div class="file-path-wrapper">
+								<input class="file-path validate" type="text"
+									placeholder="INTERLIS transfer file">
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="card-action right-align">
+					<button id="submit-btn" class="btn blue white-text waves-effect waves-light" type="submit" name="action">Upload
+    					<i class="material-icons right">send</i>
+  					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+    <script type="text/javascript" src="webjars/jquery/2.2.4/jquery.min.js"></script>
+    <script type="text/javascript" src="webjars/materializecss/0.97.7/js/materialize.min.js"></script>
+    <script>
+    	$(document).ready(function() {
+			$('#submit-btn').on('click', function() {
+				$(this).removeClass("waves-effect waves-light submit").addClass('disabled');
+			});
+    	});
+    	
+		$(document).ready(function() {
+			$('select').material_select();
+		});
+	</script>
+</body>
+
+</html>
