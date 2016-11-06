@@ -41,9 +41,9 @@ public class MainController {
 	@ResponseBody
 	public void uploadFile(
 			@RequestParam(name="referenceFrame", defaultValue="2056", required=true) String referenceFrame, 
-			@RequestParam(name="strokeArcs", defaultValue="on", required=false) String strokeArcs,
+			@RequestParam(name="strokeArcs", required=false) String strokeArcs,
 			@RequestParam(name="skipPolygonBuilding", required=false) String skipPolygonBuilding,
-			@RequestParam(name="nameByTopic", defaultValue="on", required=false) String nameByTopic,
+			@RequestParam(name="nameByTopic", required=false) String nameByTopic,
 			@RequestParam(name="noSmartMapping", required=false) String noSmartMapping,
 			@RequestParam(name="file", required=true) MultipartFile uploadfile) {
 		
