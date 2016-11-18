@@ -5,15 +5,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +27,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import org.catais.gpkg.service.Ili2gpkgService;
+
 @Controller
 public class MainController {
 
@@ -31,6 +36,10 @@ public class MainController {
 
 	@Autowired
 	private Environment env;
+	
+	@Autowired
+	Ili2gpkgService ili2gpkg;
+
 
 	@RequestMapping(value="/", method=RequestMethod.GET)
 	public String index() {
@@ -39,7 +48,7 @@ public class MainController {
 
 	@RequestMapping(value = "/", method = RequestMethod.POST)
 	@ResponseBody
-	public void uploadFile(
+	public ResponseEntity<Object> uploadFile(
 			@RequestParam(name="referenceFrame", defaultValue="2056", required=true) String referenceFrame, 
 			@RequestParam(name="strokeArcs", required=false) String strokeArcs,
 			@RequestParam(name="skipPolygonBuilding", required=false) String skipPolygonBuilding,
@@ -47,55 +56,73 @@ public class MainController {
 			@RequestParam(name="noSmartMapping", required=false) String noSmartMapping,
 			@RequestParam(name="file", required=true) MultipartFile uploadfile) {
 		
-		log.info(referenceFrame);
-		log.info(strokeArcs);
-		log.info(skipPolygonBuilding);
-		log.info(nameByTopic);
-		log.info(noSmartMapping);
-		log.info(uploadfile.getOriginalFilename());
+		log.debug(referenceFrame);
+		log.debug(strokeArcs);
+		log.debug(skipPolygonBuilding);
+		log.debug(nameByTopic);
+		log.debug(noSmartMapping);
+		log.debug(uploadfile.getOriginalFilename());
+		log.debug(Boolean.toString(uploadfile.isEmpty()));
 		
-	}
+		
+		// Very simple validation.
+		// TODO: Consider org.springframework.validation.Validator
+		
+		// 1. file size
+		if (uploadfile.isEmpty()) {
+	        return ResponseEntity
+	                .status(HttpStatus.BAD_REQUEST)                 
+	                .body("error: empty file");
+		}
+		
+		// 2. file extension
+		String uploadFileExt = FilenameUtils.getExtension(uploadfile.getOriginalFilename());
+		if (!uploadFileExt.equalsIgnoreCase("itf") && !uploadFileExt.equalsIgnoreCase("xtf")) {
+	        return ResponseEntity
+	                .status(HttpStatus.BAD_REQUEST)                 
+	                .body("error: no interlis file");
+		}
+		
+		try {
+			// Save uploaded file in temporary directory.
+			String filename = uploadfile.getOriginalFilename();
+			String directory = env.getProperty("org.catais.gpkg.uploadedFiles");
 
-	
-//	@RequestMapping(value = "/", method = RequestMethod.POST)
-//	@ResponseBody
-//	public ResponseEntity<InputStreamResource> uploadFile(
-//			@RequestParam("file") MultipartFile uploadfile) {
-//
-//		try {
-//			// Get the filename and build the local file path
-//			String filename = uploadfile.getOriginalFilename();
-//			String directory = env.getProperty("ch.so.agi.interlis.paths.uploadedFiles");
-//
-//			String tmpDirectoryPrefix = "ilivalidator_";
-//			Path tmpDirectory = Files.createTempDirectory(Paths.get(directory), tmpDirectoryPrefix);
-//
-//			String filepath = Paths.get(tmpDirectory.toString(), filename).toString();
-//
-//			// Save the file locally
-//			BufferedOutputStream stream =
-//					new BufferedOutputStream(new FileOutputStream(new File(filepath)));
-//			stream.write(uploadfile.getBytes());
-//			stream.close();
-//
-//			// Validate transfer file 
-//			String logFileName = ilivalidator.validate(filepath);
-//
-//			File logFile = new File(logFileName);
-//			InputStream is = new FileInputStream(logFile);
-//
-//			return ResponseEntity
-//					.ok()
-//					.contentLength(logFile.length())
+			String tmpDirectoryPrefix = "ili2gpkg_";
+			Path tmpDirectory = Files.createTempDirectory(Paths.get(directory), tmpDirectoryPrefix);
+
+			String filepath = Paths.get(tmpDirectory.toString(), filename).toString();
+
+			BufferedOutputStream stream =
+					new BufferedOutputStream(new FileOutputStream(new File(filepath)));
+			stream.write(uploadfile.getBytes());
+			stream.close();
+			
+			// Translate interlis transfer file to geopackage.
+			String resultFileName = ili2gpkg.translate(filepath, referenceFrame, strokeArcs, skipPolygonBuilding, 
+					nameByTopic, noSmartMapping);
+
+			log.debug(resultFileName);
+			
+			// Sent result file to client.
+			// TODO: consider FileSystemResource
+
+			File resultFile = new File(resultFileName);
+			InputStream is = new FileInputStream(resultFile);
+			
+			return ResponseEntity
+					.ok().header("content-disposition", "attachment; filename=" + resultFile.getName())
+					.header("Refresh", "1")
+					.contentLength(resultFile.length())
 //					.contentType(MediaType.parseMediaType("text/plain"))
-//					//.contentType(MediaType.parseMediaType("application/octet-stream"))
-//					.body(new InputStreamResource(is));	      
-//		}
-//		catch (Exception e) {
-//			System.out.println(e.getMessage());
-//			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//		}
-//
-//	} 
+					.contentType(MediaType.parseMediaType("application/octet-stream"))
+					.body(new InputStreamResource(is));	      
 
+		} catch (Exception e) {
+			log.error(e.getMessage());
+	        return ResponseEntity
+	                .status(HttpStatus.INTERNAL_SERVER_ERROR)                 
+	                .body(e.getMessage());
+		}		
+	}
 }

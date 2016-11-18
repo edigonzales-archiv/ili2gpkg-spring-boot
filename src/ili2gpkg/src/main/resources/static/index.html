@@ -36,9 +36,6 @@
 
 <body>
 
-
-
-  
 	<div class="valign-wrapper row upload-box">
 		<div class="col s10 pull-s1 m6 pull-m3 l4 pull-l4">
 			<form id="upload-file-form" action="" method="POST" enctype="multipart/form-data">
@@ -92,7 +89,7 @@
 						<p>
 							<input type="checkbox" name="noSmartMapping"
 								class="filled-in checkbox-blue" id="noSmartMapping" /> <label
-								for="noSmartMapping">Skip Polygon Building </label>
+								for="noSmartMapping">No Smart Mapping </label>
 						</p>
 					</div>
 				</div>
@@ -123,7 +120,9 @@
     <script>
     	$(document).ready(function() {
 			$('#submit-btn').on('click', function() {
-				$(this).removeClass("waves-effect waves-light submit").addClass('disabled');
+				// It does not get enabled after file is downloaded.
+				// I need some javascript guru here...
+				//$(this).removeClass("waves-effect waves-light submit").addClass('disabled')
 			});
     	});
     	
