@@ -112,7 +112,6 @@ public class MainController {
 			
 			return ResponseEntity
 					.ok().header("content-disposition", "attachment; filename=" + resultFile.getName())
-					.header("Refresh", "1")
 					.contentLength(resultFile.length())
 //					.contentType(MediaType.parseMediaType("text/plain"))
 					.contentType(MediaType.parseMediaType("application/octet-stream"))
