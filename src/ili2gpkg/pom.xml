@@ -5,7 +5,7 @@
 
 	<groupId>org.catais.gpkg</groupId>
 	<artifactId>ili2gpkg</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>ili2gpkg</name>
@@ -50,7 +50,7 @@
 		<dependency>
 			<groupId>ch.interlis</groupId>
 			<artifactId>ili2gpkg</artifactId>
-			<version>3.4.1</version>
+			<version>3.6.0</version>
 		</dependency>
 		
         <dependency>
