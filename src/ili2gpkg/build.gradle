@@ -1,0 +1,56 @@
+buildscript {
+	ext {
+		springBootVersion = '1.5.4.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+
+group = 'org.catais.gpkg'
+version = '0.0.3-SNAPSHOT'
+
+description = """ili2gpkg service"""
+
+springBoot {
+    executable = true
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+tasks.withType(JavaCompile) {
+	options.encoding = 'UTF-8'
+}
+
+repositories {
+    mavenCentral()
+    maven { url "http://sogeo.services/maven/repository/release/" }
+    maven { url "http://repo.maven.apache.org/maven2" }
+}
+
+dependencies {
+    compile "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
+    compile "org.springframework.boot:spring-boot-devtools:${springBootVersion}"
+    compile "commons-io:commons-io:2.5"
+    compile "ch.interlis:ili2gpkg:3.9.0"
+    compile "org.webjars:materializecss:0.97.7"
+    compile "org.webjars:jquery:2.2.4"
+	compile "io.rest-assured:rest-assured:3.0.3"
+    testCompile("org.springframework.boot:spring-boot-starter-test:${springBootVersion}") {
+		exclude(module: 'commons-logging')
+    }
+}
+
+test {
+	testLogging {
+		showStandardStreams = true
+	}
+}
